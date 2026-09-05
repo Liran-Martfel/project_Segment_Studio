@@ -1,0 +1,468 @@
+<title>Segment Studio Checklist</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#f6f7fb;
+  --surface:#ffffff;
+  --surface-2:#eef0f7;
+  --text:#1b1e2c;
+  --text-muted:#646a80;
+  --border:#e1e4ee;
+  --accent:#3b6fc4;
+  --accent-ink:#ffffff;
+  --accent-soft:#e7edfa;
+  --done-bg:#eef8f1;
+  --bonus-border:#caa14a;
+  --bonus-bg:#fbf5e7;
+  --submit-bg:#e9f6ee;
+  --submit-border:#2f9e6e;
+  --shadow: 0 1px 2px rgba(30,34,60,.04), 0 8px 24px -12px rgba(30,34,60,.12);
+  --c1:#3b7ec4; --c2:#2f9e6e; --c3:#c4832f; --c4:#9a5fd1; --c5:#d1527f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10121b;
+    --surface:#191c2a;
+    --surface-2:#212436;
+    --text:#e8eaf4;
+    --text-muted:#9aa0ba;
+    --border:#2a2e42;
+    --accent:#6f9ae0;
+    --accent-ink:#0e1220;
+    --accent-soft:#233150;
+    --done-bg:#16281e;
+    --bonus-border:#caa14a;
+    --bonus-bg:#2a2418;
+    --submit-bg:#122a1e;
+    --submit-border:#3fb381;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    --c1:#6f9ae0; --c2:#4fc590; --c3:#e0a05a; --c4:#b98af0; --c5:#ea7fa4;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10121b;
+  --surface:#191c2a;
+  --surface-2:#212436;
+  --text:#e8eaf4;
+  --text-muted:#9aa0ba;
+  --border:#2a2e42;
+  --accent:#6f9ae0;
+  --accent-ink:#0e1220;
+  --accent-soft:#233150;
+  --done-bg:#16281e;
+  --bonus-border:#caa14a;
+  --bonus-bg:#2a2418;
+  --submit-bg:#122a1e;
+  --submit-border:#3fb381;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  --c1:#6f9ae0; --c2:#4fc590; --c3:#e0a05a; --c4:#b98af0; --c5:#ea7fa4;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  direction:rtl;
+  text-align:right;
+  font-family:'Assistant',system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;
+}
+h1,h2{
+  font-family:'Frank Ruhl Libre',Georgia,serif;
+  text-wrap:balance;
+  margin:0;
+}
+
+.wrap{
+  max-width:760px;
+  margin:0 auto;
+  padding:28px 20px 80px;
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:var(--bg);
+  padding:10px 0 16px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:22px;
+}
+.title-row{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+h1{font-size:1.5rem;font-weight:700;color:var(--text);}
+h1 small{
+  display:block;
+  font-family:'Assistant',sans-serif;
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  color:var(--text-muted);
+  margin-top:2px;
+}
+.progress-line{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+}
+.progress-track{
+  flex:1;
+  height:8px;
+  border-radius:99px;
+  background:var(--surface-2);
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  border-radius:99px;
+  background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5));
+  width:0%;
+  transition:width .35s ease;
+}
+.progress-num{
+  font-weight:700;
+  font-size:.85rem;
+  color:var(--text-muted);
+  white-space:nowrap;
+}
+.reset-btn{
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text-muted);
+  font:inherit;
+  font-size:.78rem;
+  font-weight:600;
+  padding:5px 12px;
+  border-radius:99px;
+  cursor:pointer;
+}
+.reset-btn:hover{color:var(--text);border-color:var(--text-muted);}
+.reset-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:18px 18px 8px;
+  margin-bottom:16px;
+}
+.card-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+}
+.badge{
+  flex:none;
+  width:34px;height:34px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+  font-family:'Frank Ruhl Libre',serif;
+  font-weight:700;
+  font-size:1.05rem;
+}
+.card h2{font-size:1.08rem;font-weight:700;flex:1;}
+.card-count{
+  font-size:.78rem;
+  font-weight:700;
+  color:var(--text-muted);
+  background:var(--surface-2);
+  padding:3px 9px;
+  border-radius:99px;
+  white-space:nowrap;
+}
+
+ul.items{list-style:none;margin:0;padding:0;}
+ul.items li{
+  border-top:1px solid var(--border);
+}
+ul.items li:first-child{border-top:none;}
+.item-label{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:11px 2px;
+  cursor:pointer;
+  line-height:1.45;
+  font-size:.95rem;
+}
+.item-label input{
+  appearance:none;
+  flex:none;
+  width:19px;height:19px;
+  margin-top:2px;
+  border-radius:6px;
+  border:1.5px solid var(--border);
+  background:var(--surface);
+  cursor:pointer;
+  position:relative;
+  transition:background .15s,border-color .15s;
+}
+.item-label input:checked{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.item-label input:checked::after{
+  content:"";
+  position:absolute;
+  right:5px;top:1px;
+  width:6px;height:11px;
+  border:solid var(--accent-ink);
+  border-width:0 2px 2px 0;
+  transform:rotate(35deg);
+}
+.item-label input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.item-text{flex:1;color:var(--text);}
+.item-label.done .item-text{color:var(--text-muted);text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:var(--border);}
+
+.section-lead{
+  font-size:.86rem;
+  color:var(--text-muted);
+  margin:-2px 0 12px;
+  line-height:1.5;
+}
+
+.card.bonus{
+  border:1.5px dashed var(--bonus-border);
+  background:var(--bonus-bg);
+}
+.card.bonus .badge{background:var(--bonus-border);color:#3a2c08;}
+
+.card.submit{
+  border:1.5px solid var(--submit-border);
+  background:var(--submit-bg);
+}
+.card.submit .badge{background:var(--submit-border);}
+.card.submit a{color:var(--submit-border);font-weight:700;}
+
+footer{
+  text-align:center;
+  color:var(--text-muted);
+  font-size:.78rem;
+  margin-top:28px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .progress-fill{transition:none;}
+}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="title-row">
+      <h1>Segment Studio<small>רשימת משימות לפרויקט הפילוח האוטומטי</small></h1>
+      <button class="reset-btn" id="resetBtn" type="button">איפוס הרשימה</button>
+    </div>
+    <div class="progress-line">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-num" id="progressNum">0 / 0</div>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <footer>ההתקדמות נשמרת אוטומטית בדפדפן הזה בלבד.</footer>
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    id: 's1', color: 'var(--c1)', title: 'שלב 1 — טעינת קובץ CSV והצגתו',
+    lead: 'המשתמש מעלה קובץ CSV דרך ממשק Streamlit.',
+    items: [
+      'ממשק העלאת קובץ CSV (file uploader) באפליקציה',
+      'טעינת הקובץ ל-DataFrame של Pandas',
+      'הצגת הנתונים בטבלה באפליקציה',
+    ]
+  },
+  {
+    id: 's2', color: 'var(--c2)', title: 'שלב 2 — חישוב Elbow באמצעות WCSS',
+    lead: 'בחירת טווח K והצגת גרף Elbow להערכה ויזואלית של מספר הקלאסטרים.',
+    items: [
+      'סליידר/שדה לבחירת K מינימלי',
+      'סליידר/שדה לבחירת K מקסימלי',
+      'הרצת K-Means עבור כל ערך K בטווח שנבחר',
+      'חישוב WCSS (Within-Cluster Sum of Squares) עבור כל K',
+      'שמירת התוצאות (K, WCSS) בטבלה',
+      'ציור גרף Elbow — ציר X = K, ציר Y = WCSS',
+    ]
+  },
+  {
+    id: 's3', color: 'var(--c3)', title: 'שלב 3 — יצירת הקלאסטרים',
+    lead: 'בחירת K סופי והרצת הקיבוץ בפועל.',
+    items: [
+      'סליידר לבחירת ערך K סופי + כפתור "Create clusters"',
+      'הרצת K-Means עם ה-K שנבחר',
+      'הקצאת מזהה קלאסטר (cluster_id) לכל שורה בדאטה',
+      'ספירת מספר התצפיות בכל קלאסטר',
+      'טבלת תוצאה: cluster_id, count, name (ריק), description (ריק)',
+    ]
+  },
+  {
+    id: 's4', color: 'var(--c4)', title: 'שלב 4 — מתן משמעות לקלאסטרים בעזרת LLM',
+    lead: 'הפיכת הקלאסטרים למקטעים מובנים בעזרת שמות ותיאורים שנוצרים על ידי מודל שפה.',
+    items: [
+      'חישוב ממוצע הפיצ\'רים המספריים לכל קלאסטר',
+      'חישוב הערכים הקטגוריאליים השכיחים ביותר לכל קלאסטר',
+      'בניית סיכום טקסטואלי לכל קלאסטר (כולל מספר התצפיות)',
+      'כפתור להרצת המודל (למשל "Generate names/descriptions with LLaMA")',
+      'שליחת הסיכום ל-LLM וקבלת שם קצר + תיאור בן שורה אחת',
+      'טבלה מעודכנת: cluster_id, count, name, description',
+    ]
+  },
+  {
+    id: 's5', color: 'var(--c5)', title: 'שלב 5 — ייצוא חזרה ל-CSV',
+    lead: 'שמירת התוצאה הסופית כקובץ CSV חדש עם שם הקבוצה לכל שורה.',
+    items: [
+      'הוספת עמודה חדשה בשם name_cluster לקובץ המקורי',
+      'שיוך שם הקבוצה המתאים לכל שורה לפי הקלאסטר שלה',
+      'שמירת/הורדת הקובץ בשם ‎<original_name>_clustered.csv‎',
+      'כפתור "Download clustered CSV" בממשק',
+    ]
+  },
+];
+
+const BONUS = {
+  id: 'bonus', title: '⭐ בונוסים (רשות)',
+  lead: 'משימות רשות שאינן חובה להגשה, אך מוסיפות ניקוד.',
+  items: [
+    'החלפת מדד WCSS במדד Silhouette Score',
+    'כפתור "בחירת K אוטומטית": לפי Silhouette Score נבחר הערך הגבוה ביותר; עבור WCSS נשאל את ה-LLM איזה K הכי טוב',
+    'ניקוי חריגים — איתור נקודות עם מרחק חריג מהמרכז והסרתן',
+  ]
+};
+
+const SUBMIT = {
+  id: 'submit', title: '📤 הנחיות להגשה',
+  lead: '',
+  items: [
+    'העלאת כל קבצי הקוד לריפוזיטורי ב-GitHub',
+    'העלאת קובץ המודל השמור (pickle / joblib וכו\') ל-GitHub',
+    'שליחת מייל הגשה עם קישור לריפו אל pythonai211225+project2studio@gmail.com',
+  ]
+};
+
+const STORAGE_KEY = 'segment-studio-checklist-v1';
+
+function loadState(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  }catch(e){ return {}; }
+}
+function saveState(state){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+
+let state = loadState();
+
+function renderCard(section, extraClass, badgeContent){
+  const card = document.createElement('div');
+  card.className = 'card' + (extraClass ? ' ' + extraClass : '');
+
+  const head = document.createElement('div');
+  head.className = 'card-head';
+
+  const badge = document.createElement('div');
+  badge.className = 'badge';
+  if(section.color) badge.style.background = section.color;
+  badge.textContent = badgeContent;
+  head.appendChild(badge);
+
+  const h2 = document.createElement('h2');
+  h2.textContent = section.title;
+  head.appendChild(h2);
+
+  const count = document.createElement('div');
+  count.className = 'card-count';
+  count.id = 'count-' + section.id;
+  head.appendChild(count);
+
+  card.appendChild(head);
+
+  if(section.lead){
+    const lead = document.createElement('div');
+    lead.className = 'section-lead';
+    lead.textContent = section.lead;
+    card.appendChild(lead);
+  }
+
+  const ul = document.createElement('ul');
+  ul.className = 'items';
+
+  section.items.forEach((text, idx) => {
+    const key = section.id + '-' + idx;
+    const li = document.createElement('li');
+    const label = document.createElement('label');
+    label.className = 'item-label';
+    if(state[key]) label.classList.add('done');
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = !!state[key];
+    input.addEventListener('change', () => {
+      state[key] = input.checked;
+      saveState(state);
+      label.classList.toggle('done', input.checked);
+      updateCounts();
+    });
+
+    const span = document.createElement('span');
+    span.className = 'item-text';
+    span.textContent = text;
+
+    label.appendChild(input);
+    label.appendChild(span);
+    li.appendChild(label);
+    ul.appendChild(li);
+  });
+
+  card.appendChild(ul);
+  return card;
+}
+
+const container = document.getElementById('sections');
+SECTIONS.forEach((section, i) => {
+  container.appendChild(renderCard(section, '', String(i + 1)));
+});
+container.appendChild(renderCard(BONUS, 'bonus', '★'));
+container.appendChild(renderCard(SUBMIT, 'submit', '✓'));
+
+const ALL_SECTIONS = [...SECTIONS, BONUS, SUBMIT];
+
+function updateCounts(){
+  let totalDone = 0, totalAll = 0;
+  ALL_SECTIONS.forEach(section => {
+    let done = 0;
+    section.items.forEach((_, idx) => {
+      if(state[section.id + '-' + idx]) done++;
+    });
+    totalDone += done;
+    totalAll += section.items.length;
+    const el = document.getElementById('count-' + section.id);
+    if(el) el.textContent = done + ' / ' + section.items.length;
+  });
+  document.getElementById('progressNum').textContent = totalDone + ' / ' + totalAll;
+  document.getElementById('progressFill').style.width = (totalAll ? (totalDone/totalAll*100) : 0) + '%';
+}
+updateCounts();
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(!confirm('לאפס את כל הסימונים ברשימה?')) return;
+  state = {};
+  saveState(state);
+  document.querySelectorAll('.item-label input').forEach(input => {
+    input.checked = false;
+    input.parentElement.classList.remove('done');
+  });
+  updateCounts();
+});
+</script>
