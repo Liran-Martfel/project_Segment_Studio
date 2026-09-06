@@ -138,7 +138,7 @@ elif step == 2:
         metric_col2.metric("Silhouette score", f"{best_score:.3f}")
 
         chart_col, _spacer = st.columns([2, 1])
-        chart_col.pyplot(pipeline.plot_elbow(results_df, best_k=best_k), width="content")
+        chart_col.pyplot(pipeline.plot_elbow(results_df, best_k=best_k), width="content", bbox_inches=None)
 
         st.caption("WCSS / Silhouette table")
         st.dataframe(results_df, width="stretch", hide_index=True)
@@ -225,6 +225,7 @@ elif step == 3:
                     st.session_state["df_original"], st.session_state["labels"], x_col, y_col, size_col
                 ),
                 width="content",
+                bbox_inches=None,
             )
         else:
             st.info("Need at least 2 numeric columns to chart customer segments.")
