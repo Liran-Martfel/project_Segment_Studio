@@ -220,7 +220,8 @@ elif step == 3:
                 "Bubble size", feature_options,
                 index=feature_options.index(by_variance[2]) if len(by_variance) > 2 else 0,
             )
-            st.pyplot(
+            segments_chart_col, _segments_spacer = st.columns([2, 1])
+            segments_chart_col.pyplot(
                 pipeline.plot_customer_segments(
                     st.session_state["df_original"], st.session_state["labels"], x_col, y_col, size_col
                 ),
