@@ -140,7 +140,7 @@ def plot_customer_segments(
     size_span = sizes.max() - sizes.min()
     marker_sizes = 20 + (sizes - sizes.min()) / size_span * 260 if size_span > 0 else pd.Series(80, index=sizes.index)
 
-    fig = matplotlib.figure.Figure(figsize=(6.5, 4.5))
+    fig = matplotlib.figure.Figure(figsize=(6, 3.3))  # match plot_elbow's size
     ax = fig.subplots()
 
     for i, cluster_id in enumerate(sorted(labels.unique())):

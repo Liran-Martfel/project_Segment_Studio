@@ -1,16 +1,36 @@
-"""Local Ollama integration for cluster naming and the WCSS-based auto-K bonus.
+"""Ollama integration for cluster naming and the WCSS-based auto-K bonus.
 
-Uses a local Ollama install (http://localhost:11434) instead of a cloud API
-key, so there is no secret to manage or leak.
+Uses local Ollama (http://localhost:11434) when available -- free, no key
+needed, works when running the app on your own machine. Falls back to
+Ollama Cloud when an OLLAMA_API_KEY is set (e.g. via Streamlit secrets on
+a cloud deployment, where there's no local Ollama to reach), so the LLM
+features work in both places without ever committing a key to git.
 """
 
 import json
+import os
 
 import pandas as pd
 import requests
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
-OLLAMA_MODEL = "llama3"
+OLLAMA_LOCAL_URL = "http://localhost:11434/api/chat"
+OLLAMA_LOCAL_MODEL = "llama3"
+
+OLLAMA_CLOUD_URL = "https://ollama.com/api/chat"
+OLLAMA_CLOUD_MODEL = "gpt-oss:120b"
+
+
+def _get_backend() -> tuple[str, str, str | None]:
+    """Returns (url, model, api_key). api_key is None when using local Ollama."""
+    api_key = os.environ.get("OLLAMA_API_KEY")
+    if api_key:
+        return OLLAMA_CLOUD_URL, OLLAMA_CLOUD_MODEL, api_key
+    return OLLAMA_LOCAL_URL, OLLAMA_LOCAL_MODEL, None
+
+
+def current_model_name() -> str:
+    """Which model is actually in use right now (for display, e.g. a spinner message)."""
+    return _get_backend()[1]
 
 
 class LLMError(Exception):
@@ -47,28 +67,35 @@ def _extract_json(text: str) -> dict:
     raise LLMError(f"Could not parse JSON from LLM response: {text!r}")
 
 
-def ask_llm_json(prompt: str, timeout: int = 30) -> dict:
-    """Ask the local Ollama model a question, expecting a JSON object back."""
+def ask_llm_json(prompt: str, timeout: int = 60) -> dict:
+    """Ask Ollama (local, or Cloud if OLLAMA_API_KEY is set) for a JSON object back."""
+    url, model, api_key = _get_backend()
+    headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+
+    # gpt-oss:120b (the Cloud model) spends tokens on internal reasoning
+    # before its visible answer, so it needs a much bigger budget than
+    # llama3 (local) or its JSON gets cut off mid-object.
+    num_predict = 500 if api_key else 120
+
     try:
         response = requests.post(
-            OLLAMA_URL,
+            url,
+            headers=headers,
             json={
-                "model": OLLAMA_MODEL,
+                "model": model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
                 # Cap output length and lower temperature: the answer is one
                 # small JSON object, so this cuts generation time and makes
                 # the model less likely to add unparseable rambling text.
-                "options": {"num_predict": 120, "temperature": 0.3},
+                "options": {"num_predict": num_predict, "temperature": 0.3},
             },
             timeout=timeout,
         )
         response.raise_for_status()
         content = response.json()["message"]["content"]
     except requests.exceptions.ConnectionError as e:
-        raise LLMError(
-            "Could not connect to Ollama at http://localhost:11434 — is it running?"
-        ) from e
+        raise LLMError(f"Could not connect to Ollama at {url} — is it running?") from e
     except requests.exceptions.Timeout as e:
         raise LLMError("Ollama request timed out.") from e
     except (KeyError, ValueError) as e:

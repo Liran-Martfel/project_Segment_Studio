@@ -9,6 +9,16 @@ from src import llm, pipeline
 
 st.set_page_config(page_title="Segment Studio", page_icon="🧩", layout="wide")
 
+# On a cloud deployment there's no local Ollama to reach, so pull an
+# OLLAMA_API_KEY from Streamlit secrets (set in the app's Secrets panel on
+# share.streamlit.io, never committed to git) into the environment, where
+# src/llm.py picks it up and switches to Ollama Cloud automatically.
+try:
+    if "OLLAMA_API_KEY" in st.secrets:
+        os.environ.setdefault("OLLAMA_API_KEY", st.secrets["OLLAMA_API_KEY"])
+except Exception:
+    pass  # no secrets.toml locally -- fine, local Ollama is used instead
+
 st.markdown(
     """
     <style>
@@ -148,20 +158,14 @@ elif step == 3:
     results_df = st.session_state["results_df"]
     k_bounds = (int(results_df["k"].min()), int(results_df["k"].max()))
 
-    use_llm_for_k = st.checkbox(
-        "Use LLM to recommend k from WCSS instead of silhouette",
-        help="Requires Ollama running locally — won't work on the public deployed version, only when running the app on your own machine.",
-    )
+    use_llm_for_k = st.checkbox("Use LLM to recommend k from WCSS instead of silhouette")
 
     if st.button("Auto-select k"):
         if use_llm_for_k:
             try:
                 auto_k, reason = llm.recommend_k_from_wcss(results_df)
             except llm.LLMError as e:
-                auto_k, reason = None, (
-                    f"Auto-K failed: {e} (this needs Ollama running locally — "
-                    "it won't work on the public deployed version, only when running the app on your own machine)"
-                )
+                auto_k, reason = None, f"Auto-K failed: {e}"
         else:
             auto_k, reason = pipeline.auto_select_k_by_silhouette(results_df)
 
@@ -247,16 +251,14 @@ elif step == 4:
             c for c in summary.select_dtypes(exclude="number").columns if c not in skip_cols
         ]
         try:
-            with st.spinner(f"Asking {llm.OLLAMA_MODEL} to name {len(summary)} cluster(s) (~20-30s each)..."):
+            model_name = llm.current_model_name()
+            with st.spinner(f"Asking {model_name} to name {len(summary)} cluster(s)..."):
                 updated_summary, errors = llm.generate_cluster_names(summary, numeric_cols, categorical_cols)
             st.session_state["cluster_summary"] = updated_summary
             for err in errors:
                 st.warning(err)
         except llm.LLMError as e:
-            st.error(
-                f"{e} (this step needs Ollama running locally — it won't work on the "
-                "public deployed version, only when running the app on your own machine)"
-            )
+            st.error(str(e))
 
     st.caption("Cluster labels (with name + description)")
     display_cluster_table(st.session_state["cluster_summary"])
