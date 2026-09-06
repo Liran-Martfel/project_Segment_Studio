@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import requests
+import os
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
@@ -30,22 +32,12 @@ def get_normalization_csv():
             df = pd.get_dummies(df, drop_first=True, dtype=int)
             scaler = StandardScaler()
             data_scaled = pd.DataFrame(scaler.fit_transform(df), columns=df.columns, index=df.index)
-            return df, df_original, data_scaled
+            return df, df_original, data_scaled, file_path
 
         except FileNotFoundError:
             print(f"Error: The file '{file_path}' was not found. Please try again.\n")
         except Exception as e:
             print(f"An unexpected error occurred: {e}. Please try again.\n")
-
-
-# 1. Load and Normalize Data
-df, df_original, data_scaled = get_normalization_csv()
-
-# print("The normalized DataFrame:")
-# print(data_scaled.head())
-# print('==' * 35)
-# print("\nThe original DataFrame:")
-# print(df_original.head())
 
 
 # 2. Get Range for K
@@ -68,43 +60,8 @@ def get_k():
             print('Error: Invalid input. Please enter numbers only.')
 
 
-user_choice_max, user_choice_min = get_k()
-
-# 3. Calculate WCSS and Plot Elbow Method
-wcss = []
-for i in range(user_choice_min, user_choice_max + 1):
-    kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)
-    kmeans.fit(data_scaled)
-    wcss.append(kmeans.inertia_)
-
-table_kmean_wcss = pd.DataFrame({
-    'kmeans': range(user_choice_min, user_choice_max + 1),
-    'wcss': wcss
-})
-
-print("\nWCSS Table:")
-print(table_kmean_wcss)
-
-# Silhouette Scores Calculation
-print("\nCalculating Silhouette Scores:")
-for k in range(user_choice_min, user_choice_max + 1):
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(data_scaled)
-    score = silhouette_score(data_scaled, kmeans.labels_)
-    print(f"Silhouette Score for K={k}: {score:.4f}")
-
-# sns.set_theme(style="whitegrid")
-# plt.figure(figsize=(10, 5))
-# plt.plot(range(user_choice_min, user_choice_max + 1), wcss, 'bx-', linewidth=2, markersize=8)
-# plt.title('The Elbow Method for Optimal K', fontsize=14, fontweight='bold')
-# plt.xlabel('Number of Clusters (K)', fontsize=12)
-# plt.ylabel('WCSS (Within-Cluster Sum of Squares)', fontsize=12)
-# plt.axvline(x=7, color="red", linestyle="--", linewidth=1.5, label="Optimal K = 7")
-# plt.xticks(range(user_choice_min, user_choice_max + 1))
-# plt.show()
-
-
 # 4. Final Cluster Selection & Summary Table
-def user_k():
+def user_k(user_choice_min, user_choice_max):
     while True:
         try:
             user = int(input(f'\nPlease choose your K from {user_choice_min} up to {user_choice_max}: '))
@@ -116,58 +73,125 @@ def user_k():
             print('Error: Invalid input. Please enter numbers only.')
 
 
-user = user_k()
-kmeans = KMeans(n_clusters=user, random_state=42, n_init=10)
-cluster_labels = kmeans.fit_predict(data_scaled)
-df_original['cluster'] = cluster_labels
-
-print('\nValue count per cluster:')
-print(df_original['cluster'].value_counts())
-
-# Build Summary Table
-df_summary = df_original.groupby('cluster').mean(numeric_only=True).reset_index()
-df_summary = df_summary.rename(columns={'cluster': 'cluster_id'})
-df_summary['count'] = df_original['cluster'].value_counts().sort_index().values
-df_summary['name'] = ""
-df_summary['description'] = ""
-
-print("\nSummary DataFrame:")
-print(df_summary)
-
-import requests
-
-API_KEY = "90900d1782a6491aabab297e639c411d.R53bbUJPJmSxloC95Q7PHFlR"
+API_KEY = os.environ.get("OLLAMA_API_KEY", "")
 URL = "https://ollama.com/api/chat"
 
-def ask_llm(prompt):
-    response = requests.post(URL,
-        headers={
-            "Authorization": f"Bearer {API_KEY}"
-        },
-        json={
-            "model": "gpt-oss:120b",
-            "messages": [{"role": "user", "content": prompt}],
-            "stream": False
-        }
-    )
-    return response.json()["message"]["content"]
 
-for id in df_summary['cluster_id']:
-    df_summary.loc[id,'name'] = ask_llm(f'give me a short name between 1-3 words for this cluster:\n{df_summary.iloc[id]}')
-    df_summary.loc[id,'description'] = ask_llm(f'give me a short sentence up to 10 words for this cluster:\n{df_summary.iloc[id]}')
-print(df_summary)
+def ask_llm(prompt, max_words=None):
+    """
+    Sends a prompt to the Ollama Cloud model and returns its text reply.
+    If max_words is given, the reply is capped at max_words + 3 words (a
+    small buffer for a slightly wordy answer) instead of the full response.
+    Network/timeout/malformed-response errors are caught so one failed
+    cluster doesn't crash the whole naming loop.
+    """
+    try:
+        response = requests.post(URL,
+            headers={
+                "Authorization": f"Bearer {API_KEY}"
+            },
+            json={
+                "model": "gpt-oss:120b",
+                "messages": [{"role": "user", "content": prompt}],
+                "stream": False
+            },
+            timeout=30
+        )
+        response.raise_for_status()
+        text = response.json()["message"]["content"].strip()
+    except (requests.exceptions.RequestException, KeyError, ValueError) as e:
+        print(f"LLM request failed: {e}")
+        return "N/A"
+
+    if max_words is not None:
+        words = text.split()
+        text = " ".join(words[: max_words + 3])
+
+    return text
 
 
-import os
+def main():
+    # 1. Load and Normalize Data
+    df, df_original, data_scaled, file_path = get_normalization_csv()
 
-original_file_path = "customers.csv"
+    # print("The normalized DataFrame:")
+    # print(data_scaled.head())
+    # print('==' * 35)
+    # print("\nThe original DataFrame:")
+    # print(df_original.head())
 
-base_name = os.path.splitext(original_file_path)[0]
+    user_choice_max, user_choice_min = get_k()
 
-output_filename = f"{base_name}_clustered.csv"
+    # 3. Calculate WCSS and Plot Elbow Method
+    wcss = []
+    for i in range(user_choice_min, user_choice_max + 1):
+        kmeans = KMeans(n_clusters=i, random_state=42, n_init=10)
+        kmeans.fit(data_scaled)
+        wcss.append(kmeans.inertia_)
 
-df_summary.to_csv(output_filename, index=False)
+    table_kmean_wcss = pd.DataFrame({
+        'kmeans': range(user_choice_min, user_choice_max + 1),
+        'wcss': wcss
+    })
 
-print(f"הקובץ נשמר בהצלחה במחשב בשם: {output_filename}")
-full_path = os.path.abspath(output_filename)
-print(f"הקובץ נשמר בדיוק כאן:\n{full_path}")
+    print("\nWCSS Table:")
+    print(table_kmean_wcss)
+
+    # Silhouette Scores Calculation
+    print("\nCalculating Silhouette Scores:")
+    for k in range(user_choice_min, user_choice_max + 1):
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10).fit(data_scaled)
+        score = silhouette_score(data_scaled, kmeans.labels_)
+        print(f"Silhouette Score for K={k}: {score:.4f}")
+
+    # sns.set_theme(style="whitegrid")
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(range(user_choice_min, user_choice_max + 1), wcss, 'bx-', linewidth=2, markersize=8)
+    # plt.title('The Elbow Method for Optimal K', fontsize=14, fontweight='bold')
+    # plt.xlabel('Number of Clusters (K)', fontsize=12)
+    # plt.ylabel('WCSS (Within-Cluster Sum of Squares)', fontsize=12)
+    # plt.axvline(x=7, color="red", linestyle="--", linewidth=1.5, label="Optimal K = 7")
+    # plt.xticks(range(user_choice_min, user_choice_max + 1))
+    # plt.show()
+
+    user = user_k(user_choice_min, user_choice_max)
+    kmeans = KMeans(n_clusters=user, random_state=42, n_init=10)
+    cluster_labels = kmeans.fit_predict(data_scaled)
+    df_original['cluster'] = cluster_labels
+
+    print('\nValue count per cluster:')
+    print(df_original['cluster'].value_counts())
+
+    # Build Summary Table
+    df_summary = df_original.groupby('cluster').mean(numeric_only=True).reset_index()
+    df_summary = df_summary.rename(columns={'cluster': 'cluster_id'})
+    df_summary['count'] = df_original['cluster'].value_counts().sort_index().values
+    df_summary['name'] = ""
+    df_summary['description'] = ""
+
+    print("\nSummary DataFrame:")
+    print(df_summary)
+
+    for _, row in df_summary.iterrows():
+        cluster_id = row['cluster_id']
+        df_summary.loc[df_summary['cluster_id'] == cluster_id, 'name'] = ask_llm(
+            f'give me a short name between 1-3 words for this cluster:\n{row}', max_words=3
+        )
+        df_summary.loc[df_summary['cluster_id'] == cluster_id, 'description'] = ask_llm(
+            f'give me a short sentence up to 10 words for this cluster:\n{row}', max_words=10
+        )
+    print(df_summary)
+
+    original_file_path = file_path
+    base_name = os.path.splitext(original_file_path)[0]
+    output_filename = f"{base_name}_clustered.csv"
+
+    df_summary.to_csv(output_filename, index=False)
+
+    print(f"הקובץ נשמר בהצלחה במחשב בשם: {output_filename}")
+    full_path = os.path.abspath(output_filename)
+    print(f"הקובץ נשמר בדיוק כאן:\n{full_path}")
+
+
+if __name__ == "__main__":
+    main()

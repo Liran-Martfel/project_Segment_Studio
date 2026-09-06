@@ -148,14 +148,17 @@ elif step == 3:
     results_df = st.session_state["results_df"]
     k_bounds = (int(results_df["k"].min()), int(results_df["k"].max()))
 
+    use_llm_for_k = st.checkbox("Use LLM to recommend k from WCSS instead of silhouette")
+
     if st.button("Auto-select k"):
-        try:
-            auto_k, reason = pipeline.auto_select_k_by_silhouette(results_df)
-        except Exception:
+        if use_llm_for_k:
             try:
                 auto_k, reason = llm.recommend_k_from_wcss(results_df)
             except llm.LLMError as e:
                 auto_k, reason = None, f"Auto-K failed: {e}"
+        else:
+            auto_k, reason = pipeline.auto_select_k_by_silhouette(results_df)
+
         if auto_k is not None:
             st.session_state["selected_k"] = auto_k
         st.info(reason)
