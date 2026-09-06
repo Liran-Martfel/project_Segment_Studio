@@ -1,5 +1,8 @@
 # 🧩 Segment Studio — פילוח אוטומטי (Clustering)
 
+### 🌐 [נסו את האפליקציה החיה](https://projectsegmentstudio-a7yvlmvqjcnkntaeylnkgv.streamlit.app/)
+*(דורש התחברות חד-פעמית וקצרה עם Google/GitHub — מדיניות של Streamlit Community Cloud לכל צופה, גם באפליקציות ציבוריות. שלב 4 (שם/תיאור בעזרת LLM) פועל רק בהרצה מקומית, כי הוא תלוי ב-Ollama שרץ על המחשב המריץ את האפליקציה.)*
+
 ### 🔗 [רשימת המשימות האינטראקטיבית של הפרויקט](https://claude.ai/code/artifact/600c6f71-059c-4354-8c04-15dfa6b86600)
 
 מערכת אינטראקטיבית לניתוח נתונים שמטרתה לגלות קבוצות נסתרות (Segments) בתוך קובץ CSV באמצעות למידת מכונה.
