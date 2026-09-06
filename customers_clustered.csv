@@ -1,0 +1,8 @@
+cluster_id,CustomerID,Age,Annual Income,Spending Score (1-100),count,name,description
+0,73.3,50.875,49175.0,39.7,40,**Mid‑Income Moderates**,"Middle‑aged, mid‑income customers with modest spending scores."
+1,56.083333333333336,25.25,41250.0,60.916666666666664,24,**Young Spenders**,Young adults with moderate income and high spending enthusiasm.
+2,58.891891891891895,25.945945945945947,42216.21621621621,57.45945945945946,37,**Young Mid‑Spenders**,Young adults with moderate income and average spending.
+3,160.44444444444446,33.27777777777778,87111.11111111111,82.66666666666667,18,**Affluent Millennials**,"Affluent millennials, age 33, with high income and strong spending."
+4,84.96969696969697,56.72727272727273,53666.666666666664,35.878787878787875,33,**Frugal Seniors**,"Seniors with modest income, preferring low, frugal spending."
+5,161.5,32.54545454545455,85272.72727272728,80.5909090909091,22,**Affluent Millennials**,"Wealthy millennials spending heavily, driven by premium preferences."
+6,169.15384615384616,37.76923076923077,91461.53846153847,16.115384615384617,26,**Affluent Frugal**,"High earners, low spenders, roughly 38‑year‑old shoppers."
