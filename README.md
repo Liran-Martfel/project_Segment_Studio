@@ -21,6 +21,9 @@
 
 ## 📁 מבנה הריפוזיטורי
 
+> **מה זו ההגשה בפועל:** `app.py` (+ `src/pipeline.py`, `src/llm.py`) הן אפליקציית ה-Streamlit הסופית ומהוות את ההגשה.
+> `project_main.py`, `Project segment studio.ipynb` ו-`checklist.ipynb`/`checklist.html` הם שלבי הפיתוח וההתקדמות שקדמו לאפליקציה — נשמרו בכוונה כתיעוד היסטוריה של הפרויקט, אך אינם חלק מהאפליקציה עצמה.
+
 ```
 app.py                           - אפליקציית Streamlit הראשית (ה-Wizard בן 5 השלבים)
 src/pipeline.py                  - לוגיקת ה-ML: נירמול, WCSS/Silhouette, K-Means, סיכום קלאסטרים, חריגים, גרפים
