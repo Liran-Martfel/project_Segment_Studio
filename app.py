@@ -148,14 +148,20 @@ elif step == 3:
     results_df = st.session_state["results_df"]
     k_bounds = (int(results_df["k"].min()), int(results_df["k"].max()))
 
-    use_llm_for_k = st.checkbox("Use LLM to recommend k from WCSS instead of silhouette")
+    use_llm_for_k = st.checkbox(
+        "Use LLM to recommend k from WCSS instead of silhouette",
+        help="Requires Ollama running locally — won't work on the public deployed version, only when running the app on your own machine.",
+    )
 
     if st.button("Auto-select k"):
         if use_llm_for_k:
             try:
                 auto_k, reason = llm.recommend_k_from_wcss(results_df)
             except llm.LLMError as e:
-                auto_k, reason = None, f"Auto-K failed: {e}"
+                auto_k, reason = None, (
+                    f"Auto-K failed: {e} (this needs Ollama running locally — "
+                    "it won't work on the public deployed version, only when running the app on your own machine)"
+                )
         else:
             auto_k, reason = pipeline.auto_select_k_by_silhouette(results_df)
 
@@ -247,7 +253,10 @@ elif step == 4:
             for err in errors:
                 st.warning(err)
         except llm.LLMError as e:
-            st.error(str(e))
+            st.error(
+                f"{e} (this step needs Ollama running locally — it won't work on the "
+                "public deployed version, only when running the app on your own machine)"
+            )
 
     st.caption("Cluster labels (with name + description)")
     display_cluster_table(st.session_state["cluster_summary"])
